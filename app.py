@@ -11,6 +11,7 @@ from mongoengine import *
 
 # import data models
 import models
+import functions
 
 # for json needs
 import json
@@ -22,17 +23,14 @@ app = Flask(__name__)
 app.config['CSRF_ENABLED'] = False
 app.secret_key = os.environ.get('SECRET_KEY')
 
-# app.config['CSRF_SESSION_KEY'] = os.environ.get('SECRET_KEY')
-# app.logger.debug( app.secret_key )
-
-
-# --------- Database Connection ---------
+# --------- Database Connection ----------------------------------------------------
 # MongoDB connection to MongoLab's database
 connect('mydata', host=os.environ.get('MONGOLAB_URI'))
 app.logger.debug("Connecting to MongoLabs")
 
+defaultCategories = ["Reputation", "Pole_Position", "Cash", "Media"]
 
-# --------- Routes ----------
+# --------- Routes -----------------------------------------------------------------
 @app.route("/", methods=['GET'])
 def index():
 	form = models.CandidateForm(request.form)
@@ -40,10 +38,31 @@ def index():
 	return render_template("start.html", **data)
 
 
+@app.route("/phaseone", methods=['POST'])
+def phase_one():
+	newCan = models.Candidate()
+	newCan.name = request.form.get('name')
+	newCan.slogan = request.form.get('slogan')
+
+	# set default categories
+	for i in defaultCategories:
+		newCat = models.Category()
+		newCat.title = i
+		newCat.minValue = 0
+		newCat.maxValue = 10
+		newCan.metrics.append( newCat )
+
+	newCan.save()
+	app.logger.debug( newCan.name + ' campaign created.')
+	app.logger.debug( defaultCategories )
+
+	return render_template("phaseone.html")
+
+
+# --------- Helper Functions -------------------------------------------------------
 @app.errorhandler(404)
 def page_not_found(error):
     return render_template('404.html'), 404
-
 
 # slugify the title 
 # via http://flask.pocoo.org/snippets/5/
@@ -55,7 +74,7 @@ def slugify(text, delim=u'-'):
 		result.extend(unidecode(word).split())
 	return unicode(delim.join(result))
 
-# --------- Server On ----------
+# --------- Server On ---------------------------------------------------------------
 # start the webserver
 if __name__ == "__main__":
 	app.debug = True

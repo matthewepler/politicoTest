@@ -11,17 +11,19 @@
 			<h2>Register your campaign to begin.</h2>
 		</div>
 
-		<!--login-->
+		<!-- login
 		<div id="login" class="span3 offset2">
 			<p>Already have an account?</p>
 			<button class="btn btn-large"><a href="login.html">Login</a></button>
-		</div><!--login-->
+		</div> login-->
+
 	</div> <!--row-->
 
 		
 	<!--form-->
 	<div class="span6">
 		<form method="POST" action="/phaseone">
+			<div class="control-group">
 			<!--check for form errors-->
 			{% if form.errors %}
 			    <ul class="errors">
@@ -37,9 +39,11 @@
 			{{ form.name }}
 			{{ render_error(form.name) }}
 			
-			{{ form.tagline.label }}
-			{{ form.tagline }}
-			{{ render_error(form.tagline) }}
+			{{ form.slogan.label }}
+			{{ form.slogan }}
+			{{ render_error(form.slogan) }}
+			</div>
+			<button type="submit" class="btn">Submit</button>
 		</form>
 	</div> <!--form-->
 </div> <!--container-->

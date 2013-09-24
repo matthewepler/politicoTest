@@ -18,8 +18,13 @@ from flask import jsonify
 
 import requests
 
-app = Flask(__name__)   # create our flask app
+app = Flask(__name__)  
 app.config['CSRF_ENABLED'] = False
+app.secret_key = os.environ.get('SECRET_KEY')
+
+# app.config['CSRF_SESSION_KEY'] = os.environ.get('SECRET_KEY')
+# app.logger.debug( app.secret_key )
+
 
 # --------- Database Connection ---------
 # MongoDB connection to MongoLab's database
@@ -28,9 +33,11 @@ app.logger.debug("Connecting to MongoLabs")
 
 
 # --------- Routes ----------
-@app.route("/", methods=['GET','POST'])
+@app.route("/", methods=['GET'])
 def index():
-	return render_template("start.html")
+	form = models.CandidateForm(request.form)
+	data = {'form' : form}
+	return render_template("start.html", **data)
 
 
 @app.errorhandler(404)
@@ -52,7 +59,6 @@ def slugify(text, delim=u'-'):
 # start the webserver
 if __name__ == "__main__":
 	app.debug = True
-	
 	port = int(os.environ.get('PORT', 5000)) # locally PORT 5000, Heroku will assign its own port
 	app.run(host='0.0.0.0', port=port)
 

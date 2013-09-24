@@ -17,10 +17,10 @@ CategoryForm = model_form(Category)
 class Candidate(Document):
 	# basic info
 	name = StringField(max_length=120, required=True)
-	slug = StringField()
 	tagline = StringField(required=True, verbose_name="What is your tagline?")
-	photo = StringField()
+	#photo = FileField()
 	metrics = ListField(EmbeddedDocumentField(Category))
+	slug = StringField()
 	timestamp = DateTimeField(default=datetime.now())
 
 # validation form

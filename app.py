@@ -51,7 +51,6 @@ def admin():
 @app.route("/add", methods=['GET', 'POST'])
 def updateAdmin():
 	categories = models.Category.objects()
-
 	if request.method == "POST":
 		newQ = models.Question()
 		newQ.category = request.form.get('category-list')
@@ -65,7 +64,6 @@ def updateAdmin():
 		newQ.yesResponse = request.form.get("yResponse")
 		newQ.noResponse = request.form.get("nResponse")
 		newQ.save()
-		app.logger.debug( newQ.text )
 		return redirect( '/admin' )
 	else:
 		q_form = models.QuestionForm(request.form)
@@ -74,6 +72,32 @@ def updateAdmin():
 				'form': q_form 
 				}
 	return render_template('add.html', **data)
+
+@app.route("/edit/<question>", methods=['GET', 'POST'])
+def edit(question):
+	categories = models.Category.objects()
+	question = question + "?"
+	editQ = models.Question.objects.get(text=question)
+	app.logger.debug( editQ.yesResponse )
+	if editQ and request.method == "GET":
+		data ={
+				"editQ": editQ,
+				"list" : categories
+				}
+		return render_template("edit.html", **data)
+	else:
+		editQ.category = request.form.get('category-list')
+		editQ.text = request.form.get('text')
+		for c in categories:
+			editQ.relations.append(c.title)
+			yesValueName = c.title + "-yes"
+			noValueName = c.title + "-no"
+			editQ.yesValues.append(request.form.get(yesValueName))
+			editQ.noValues.append(request.form.get(noValueName))
+		editQ.yesResponse = request.form.get("yResponse")
+		editQ.noResponse = request.form.get("nResponse")
+		editQ.save()
+		return redirect("/admin")
 
 # --------- Helper Functions -------------------------------------------------------
 @app.errorhandler(404)

@@ -1,0 +1,46 @@
+{% extends "layout/main.html" %}
+
+{% block body %}
+<div class="container">
+	<form method="POST">
+		<h4>Choose a category:</h4>
+		<select id="category-list" name="category-list">
+			<option>{{ editQ.category }}</option>
+			{% for l in list %}
+				{% if l.title != editQ.category %}
+					<option>{{ l.title }}</option>
+				{% endif %}
+			{% endfor %}
+		</select>
+
+		<h4>Question Text</h4>
+		<input type="text" style="width:500px" name="text" value="{{ editQ.text }}">
+
+		<h4>Yes Response:</h4>
+		<input type="text" style="width:500px" name="yResponse" value="{{ editQ.yesResponse }}">
+
+		<h4>No Response:</h4>
+		<input type="text" style="width:500px" name="nResponse" value="{{ editQ.noResponse }}">
+
+		<h4>Set Relationships</h4>
+		<p><em>Insert '0' if unaffected.</em></p>
+		{% set counter=0 %}
+		{% for l in list  %}
+			{{ l.title }}: 
+			<br>
+			Yes <input type="text" style="width:20px" name="{{l.title}}-yes" value="{{ editQ.yesValues[counter] }}"> 
+			<br>
+			No<input type="text" style="width:20px;margin-left:10px" name="{{l.title}}-no" value="{{ editQ.yesValues[counter] }}">
+			<br>
+			<br>
+			{% set counter = counter + 1 %}
+		{% endfor %}
+
+		<button class="btn btn-large" type="submit">Submit</button>
+	</form>
+</div>
+
+{% endblock %}
+
+{% block styles %}{% endblock %}
+{% block scripts %}{% endblock %}

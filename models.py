@@ -26,11 +26,9 @@ CategoryForm = model_form(Category)
 
 class Candidate(Document):
 	# basic info
-	name = StringField(max_length=120, required=True)
-	slogan = StringField(required=True, verbose_name="What is your campaign slogan?")
-	#photo = FileField()
-	metrics = ListField(StringField())
-	slug = StringField()
+	categories = ListField(StringField())
+	prevScores = ListField(IntField())
+	currScores = ListField(IntField())
 	timestamp = DateTimeField(default=datetime.now())
 
 # validation form

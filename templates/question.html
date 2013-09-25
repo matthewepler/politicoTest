@@ -1,7 +1,12 @@
 {% extends "layout/main.html" %}
 
 {% block body %}
-<h1>{{response}}</h1>
+	{% set counter = 0 %}
+	{% for c in categories %}
+		<p>{{ c }}</p>
+		<p>{{ currScores[counter] }}</p>
+		{% set counter = counter + 1 %}
+	{% endfor %}
 {% endblock %}
 
 {% block styles %}{% endblock %}

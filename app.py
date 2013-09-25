@@ -33,12 +33,32 @@ app.logger.debug("Connecting to MongoLabs")
 # --------- Routes -----------------------------------------------------------------
 @app.route("/", methods=['GET'])
 def index():
+	
 	return render_template("start.html")
 
 
 @app.route("/question/<response>", methods=['GET','POST'])
 def question(response):
-	data = {'response':response}
+	if response == "0":
+		newCan = models.Candidate()
+		newCan.name = "Mayor"
+		categories = models.Category.objects()
+		for c in categories:
+			ranNum = random.randint(2,5)
+			newCan.currScores.append(ranNum)
+			newCan.categories.append(c.title)
+		data = {
+				'categories' : newCan.categories,
+				'currScores' : newCan.currScores
+				}
+	else:
+		
+		# save the previous values into prevScores
+		# get the form data and put it into currScores
+		# calculate an array of offset values for drawing
+		# package data
+		data = {'response':response}
+
 	return render_template("question.html", **data)
 
 @app.route("/admin", methods=['GET', 'POST'])

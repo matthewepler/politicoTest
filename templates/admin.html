@@ -1,0 +1,51 @@
+{% extends "layout/main.html" %}
+
+{% block body %}
+<div class="container">
+	<h3>Review or make changes to your quesions by changing the values below.</h3>
+	<h4><em> To add a new quesion, click the 'add' button.</em></h4>
+	<br>
+	<a class="btn" href="/add">Add</a>
+</div>
+
+<hr>
+
+<div class="container">
+	<div class="row">
+		<div class="span9">
+			{% for l in list %}
+				<h4>{{ l.text }}<a class="btn" href="/edit/{{ l.text }}" style="margin-left:20px">Edit</a></h3>
+					<h3>{{l._id}}</h3>
+				<p><strong>Category: {{ l.category }}</strong></p>
+				<p>Yes Response:  "{{ l.yesResponse }}"</p>
+				<p>No Response:    "{{ l.noResponse }}</p>
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Affected</th>
+							<th>Yes</th>
+							<th>No</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% set counter = 0 %}
+						{% for r in l.relations %}
+						<tr>
+							<td>{{ r }}</td>
+							<td>{{ l.yesValues[counter] }}</td>
+							<td>{{ l.noValues[counter] }}</td>
+						</tr>
+						{% set counter = counter + 1 %}
+						{% endfor %}
+					</tbody>
+				</table>
+				<hr>
+			{% endfor %}
+		</div><!--span9-->
+	</div><!--row-->
+</div><!--container-->
+
+{% endblock %}
+
+{% block styles %}{% endblock %}
+{% block scripts %}{% endblock %}

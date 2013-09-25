@@ -1,51 +1,16 @@
-{% from "_form_helpers.html" import render_error %}
 {% extends "layout/main.html" %}
-
 
 {% block body %}
 <div class="container">
 	<div class="row">
 		<!--welcome-->
-		<div id="welcome" class="span7">
-			<h1>Campaign Season is Here!</h1>
-			<h2>Register your campaign to begin.</h2>
+		<div id="welcome" class="span10">
+			<h1>Think it's easy to run this town?</h1>
+			<h3><em>Try being Mayor for a few minutes and see how you do.</em></h2>
 		</div>
-
-		<!-- login
-		<div id="login" class="span3 offset2">
-			<p>Already have an account?</p>
-			<button class="btn btn-large"><a href="login.html">Login</a></button>
-		</div> login-->
-
 	</div> <!--row-->
-
-		
-	<!--form-->
-	<div class="span6">
-		<form method="POST" action="/phaseone">
-			<div class="control-group">
-			<!--check for form errors-->
-			{% if form.errors %}
-			    <ul class="errors">
-			        {% for field_name, field_errors in form.errors|dictsort if field_errors %}
-			            {% for error in field_errors %}
-			                <li class="alert">{{ form[field_name].label }}: {{ error }}</li>
-			            {% endfor %}
-			        {% endfor %}
-			    </ul>
-			{% endif %}
-
-			{{ form.name.label }}
-			{{ form.name }}
-			{{ render_error(form.name) }}
 			
-			{{ form.slogan.label }}
-			{{ form.slogan }}
-			{{ render_error(form.slogan) }}
-			</div>
-			<button type="submit" class="btn">Submit</button>
-		</form>
-	</div> <!--form-->
+	<a class="btn btn-large" href="/question/0">Next</a>
 </div> <!--container-->
 {% endblock %}
 

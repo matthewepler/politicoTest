@@ -1,0 +1,41 @@
+{% extends "layout/main.html" %}
+
+{% block body %}
+<div class="container">
+	<form method="POST">
+		<h4>Choose a category:</h4>
+		<select id="category-list" name="category-list">
+			{% for l in list %}
+			<option>{{ l.title }}</option>
+			{% endfor %}
+		</select>
+
+		<h4>Question Text</h4>
+		<input type="text" style="width:500px" name="text">
+
+		<h4>Yes Response:</h4>
+		<input type="text" style="width:500px" name="yResponse">
+
+		<h4>No Response:</h4>
+		<input type="text" style="width:500px" name="nResponse">
+
+		<h4>Set Relationships</h4>
+		<p><em>Insert '0' if unaffected.</em></p>
+		{% for l in list  %}
+			{{ l.title }}: 
+			<br>
+			Yes <input type="text" style="width:20px" name="{{l.title}}-yes"> 
+			<br>
+			No<input type="text" style="width:20px;margin-left:10px" name="{{l.title}}-no">
+			<br>
+			<br>
+		{% endfor %}
+
+		<button class="btn btn-large" type="submit">Submit</button>
+	</form>
+</div>
+
+{% endblock %}
+
+{% block styles %}{% endblock %}
+{% block scripts %}{% endblock %}

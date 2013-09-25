@@ -12,6 +12,7 @@ from mongoengine import *
 # import data models
 import models
 import functions
+import random
 
 # for json needs
 import json
@@ -28,36 +29,51 @@ app.secret_key = os.environ.get('SECRET_KEY')
 connect('mydata', host=os.environ.get('MONGOLAB_URI'))
 app.logger.debug("Connecting to MongoLabs")
 
-defaultCategories = ["Reputation", "Pole_Position", "Cash", "Media"]
 
 # --------- Routes -----------------------------------------------------------------
 @app.route("/", methods=['GET'])
 def index():
-	form = models.CandidateForm(request.form)
-	data = {'form' : form}
-	return render_template("start.html", **data)
+	return render_template("start.html")
 
 
-@app.route("/phaseone", methods=['POST'])
-def phase_one():
-	newCan = models.Candidate()
-	newCan.name = request.form.get('name')
-	newCan.slogan = request.form.get('slogan')
+@app.route("/question/<response>", methods=['GET','POST'])
+def question(response):
+	data = {'response':response}
+	return render_template("question.html", **data)
 
-	# set default categories
-	for i in defaultCategories:
-		newCat = models.Category()
-		newCat.title = i
-		newCat.minValue = 0
-		newCat.maxValue = 10
-		newCan.metrics.append( newCat )
+@app.route("/admin", methods=['GET', 'POST'])
+def admin():
+	questions = models.Question.objects().order_by('+category')
+	if questions:
+		data = {'list':questions}
+	return render_template('admin.html', **data)
 
-	newCan.save()
-	app.logger.debug( newCan.name + ' campaign created.')
-	app.logger.debug( defaultCategories )
+@app.route("/add", methods=['GET', 'POST'])
+def updateAdmin():
+	categories = models.Category.objects()
 
-	return render_template("phaseone.html")
-
+	if request.method == "POST":
+		newQ = models.Question()
+		newQ.category = request.form.get('category-list')
+		newQ.text = request.form.get('text')
+		for c in categories:
+			newQ.relations.append(c.title)
+			yesValueName = c.title + "-yes"
+			noValueName = c.title + "-no"
+			newQ.yesValues.append(request.form.get(yesValueName))
+			newQ.noValues.append(request.form.get(noValueName))
+		newQ.yesResponse = request.form.get("yResponse")
+		newQ.noResponse = request.form.get("nResponse")
+		newQ.save()
+		app.logger.debug( newQ.text )
+		return redirect( '/admin' )
+	else:
+		q_form = models.QuestionForm(request.form)
+		data = { 
+				'list': categories,
+				'form': q_form 
+				}
+	return render_template('add.html', **data)
 
 # --------- Helper Functions -------------------------------------------------------
 @app.errorhandler(404)

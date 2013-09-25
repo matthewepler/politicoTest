@@ -5,22 +5,31 @@ from flask.ext.mongoengine.wtf import model_form
 from datetime import datetime
 import logging
 
+class Question(Document):
+	text = StringField(required=True)
+	category = StringField(required=True)
+	relations = ListField(StringField())
+	yesValues = ListField(IntField())
+	noValues = ListField(IntField())
+	yesResponse = StringField()
+	noResponse = StringField()
 
-class Category(EmbeddedDocument):
+QuestionForm = model_form(Question)
+
+
+class Category(Document):
 	title = StringField(max_length=120, required=True)
-	minValue = IntField(required=True)
-	maxValue = IntField(required=True)
 	currValue = DecimalField(force_string=True, precision=1)
 
-# validation form
 CategoryForm = model_form(Category)
+
 
 class Candidate(Document):
 	# basic info
 	name = StringField(max_length=120, required=True)
 	slogan = StringField(required=True, verbose_name="What is your campaign slogan?")
 	#photo = FileField()
-	metrics = ListField(EmbeddedDocumentField(Category))
+	metrics = ListField(StringField())
 	slug = StringField()
 	timestamp = DateTimeField(default=datetime.now())
 

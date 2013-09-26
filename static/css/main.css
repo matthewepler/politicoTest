@@ -1,4 +1,4 @@
-textarea{
-cols:500;
-rows:500;
+rect {
+   stroke:white;
+   fill:steelblue;
 }

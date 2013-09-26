@@ -14,9 +14,9 @@ import models
 from otherFunctions import *
 import random
 
-# # for json needs
-# import json
-# from flask import jsonify
+# for json needs
+import json
+from flask import jsonify
 
 import requests
 
@@ -48,7 +48,7 @@ def index():
 	metrics = {}
 	metrics = sorted(newCan.currScores, key=lambda key: newCan.currScores[key])
 	questions = models.Question.objects(category=metrics[0])
-	ranNum = random.randint(0, len(questions))
+	ranNum = random.randint(1, len(questions)-1)
 	question = questions[ranNum]
 	
 	data = {
@@ -65,7 +65,6 @@ def question(response, qText):
 	if response == '0':
 		#reset everything
 		mayor = models.Candidate.objects.get()
-		categories = models.Category.objects()
 
 		#evaluate the current scores
 		metrics = {}
@@ -73,21 +72,26 @@ def question(response, qText):
 
 		#pick a question from the category with the lowest score
 		questions = models.Question.objects(category=metrics[0])
-		ranNum = random.randint(0, len(questions))
-		question = questions[ranNum]
+		questions.count()
+
+		ranNum = random.randint(1, len(questions)-1)
+		app.logger.debug(ranNum)
+		question = questions[ranNum-1]
+		app.logger.debug(question.text)
+
+		response = "Let's get started. Looks like " + metrics[0] + " could use some attention."
 
 		data = {
+				'response'   : response,
 				'currScores' : mayor.currScores,
 				'question'   : question
 				}
 
-		return render_template("question.html", **data)
-
 	elif response == '1': #Yes
 		mayor = models.Candidate.objects.get()
-		app.logger.debug( qText )
 		prevQuestion = models.Question.objects.get(text=qText)
-
+		models.Question.objects.get(text=qText).delete()
+		yesResponse = prevQuestion.yesResponse
 		# save the currScores into prevScores before altering them
 		mayor.prevScores = mayor.currScores
 
@@ -98,8 +102,11 @@ def question(response, qText):
 		counter = 0
 		for i in mayor.currScores.keys():
 			pScore = mayor.currScores[i]
+			app.logger.debug( "pScore= " + str(pScore) )
 			nScore = prevQYesValues[counter]
+			app.logger.debug( "qMatrix= " + str(nScore) )
 			adjScore = pScore + nScore
+			app.logger.debug( "adjScore= " + str(adjScore) )
 			mayor.currScores[i] = adjScore
 			counter = counter + 1
 
@@ -109,21 +116,74 @@ def question(response, qText):
 
 		#pick a question from the category with the lowest score
 		questions = models.Question.objects(category=metrics[0])
-		if len(questions) > 1:
-			ranNum = random.randint(0, len(questions))
-			question = questions[ranNum]
-			models.Question.objects.get(text=question.text).delete()
-		else:
+		questions.count()
+
+		if questions.count() > 1:
+			ranNum = random.randint(1, questions.count())
+			question = questions[ranNum-1]
+		elif questions.count() == 1:
 			question = questions[0]
+		else:
+			yesResponse = "NO MORE QUESTIONS IN THIS CATEOGRY. PLEASE START OVER BY CLICKING THE HOME PAGE LINK IN THE UPPER LEFT OF YOUR WINDOW."
+			question = models.Question()
+			question.text = "GAME OVER. THANKS FOR PLAYING!"
+
+		mayor.save()
 
 		data = {
+				'response'   : yesResponse,
 				'currScores' : mayor.currScores,
 				'question'   : question
 				}
-		render_template("question.html", **data)
 
 	elif response == '2': #No
-		data = {}
+		mayor = models.Candidate.objects.get()
+		prevQuestion = models.Question.objects.get(text=qText)
+		models.Question.objects.get(text=qText).delete()
+		noResponse = prevQuestion.noResponse
+		# save the currScores into prevScores before altering them
+		mayor.prevScores = mayor.currScores
+
+		# qet the yesValues for the previous question
+		prevQNoValues = prevQuestion.noValues
+
+		# add them to the currScores 
+		counter = 0
+		for i in mayor.currScores.keys():
+			pScore = mayor.currScores[i]
+			app.logger.debug( "pScore= " + str(pScore) )
+			nScore = prevQNoValues[counter]
+			app.logger.debug( "qMatrix= " + str(nScore) )
+			adjScore = pScore + nScore
+			app.logger.debug( "adjScore= " + str(adjScore) )
+			mayor.currScores[i] = adjScore
+			counter = counter + 1
+
+		#evaluate the current scores
+		metrics = {}
+		metrics = sorted(mayor.currScores, key=lambda key: mayor.currScores[key])
+
+		#pick a question from the category with the lowest score
+		questions = models.Question.objects(category=metrics[0])
+		questions.count()
+
+		if questions.count() > 1:
+			ranNum = random.randint(1, questions.count())
+			question = questions[ranNum-1]
+		elif questions.count() == 1:
+			question = questions[0]
+		else:
+			noResponse = "NO MORE QUESTIONS IN THIS CATEOGRY. PLEASE START OVER BY CLICKING THE HOME PAGE LINK IN THE UPPER LEFT OF YOUR WINDOW."
+			question = models.Question()
+			question.text = "GAME OVER. THANKS FOR PLAYING!"
+
+		mayor.save()
+
+		data = {
+				'response'   : noResponse,
+				'currScores' : mayor.currScores,
+				'question'   : question
+				}
 
 	return render_template("question.html", **data)
 

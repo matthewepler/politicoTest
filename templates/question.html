@@ -3,20 +3,26 @@
 {% block body %}
 <div id="metrics" class="container">
 	<div class="row">
-		<div class="span12 text-center" style="background:#F8F8F8 ">
-			Your Stats
-			<div class="row" id="graph">
-				<!--GRAPH STUFF HERE-->
-				<div class="row">
-					{% for key, value in currScores.iteritems() %}
-						<div class="span2 text-center">
-							<p>{{ c }}</p>
-							<p>{{ key|e }}</p>
-							<p>{{ value|e }}0%</p>
-						</div>
-					{% endfor %}	
-				</div><!--nested row spans-->
-			</div><!--graph-->
+		<div class="span12 text-center">
+			<h4><em>{{ response }}</em></h4>
+		</div>
+	</div>
+	<hr>
+	<div class="row">
+		<div class="span12 text-center" style="background:#F8F8F8 "> <!-- style="background:#F8F8F8 "-->
+			<strong>Your Stats</strong>
+			<div class="row" id="graph" style="margin-left:25px">
+				<!--graph script appears in script block-->
+			</div>
+			<div class="row">
+				{% for key, value in currScores.iteritems() %}
+					<div class="span2 text-center">
+						<p>{{ c }}</p>
+						<p>{{ key|e }}</p>
+						<p>{{ value|e }}0%</p>
+					</div>
+				{% endfor %}	
+			</div><!--nested row spans-->
 		</div><!--nested row-->
 	</div><!--top row-->
 </div><!--metrics container-->
@@ -37,4 +43,23 @@
 {% endblock %}
 
 {% block styles %}{% endblock %}
-{% block scripts %}{% endblock %}
+
+{% block scripts %}
+	<script type="text/javascript">
+		var data = []
+
+		{% for key, value in currScores.iteritems() %}
+			data.push( {{value|e}})
+		{% endfor %}
+		console.log(data)
+
+		var barWidth = 90;
+		var width = (barWidth + 70) * data.length;
+		var height = 125;
+
+		var chart = d3.select("#graph").append("svg").attr("width", width).attr("height", height);
+
+		chart.selectAll("rect").data(data).enter().append("rect").attr("x", function(d, i) {return i * (width / data.length);}).attr("y", function(d) {return height - (d*25);}).attr("width", barWidth).attr("height", function(d) {return d*25;});
+
+	</script>
+{% endblock %}

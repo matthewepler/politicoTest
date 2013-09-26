@@ -76,9 +76,6 @@ def question(response, qText):
 		ranNum = random.randint(0, len(questions))
 		question = questions[ranNum]
 
-		#delete it so we don't pick it again
-		models.Question.objects.get(text=question.text).delete()
-
 		data = {
 				'currScores' : mayor.currScores,
 				'question'   : question
@@ -86,35 +83,46 @@ def question(response, qText):
 
 		return render_template("question.html", **data)
 
-	elif response == 1: #Yes
+	elif response == '1': #Yes
 		mayor = models.Candidate.objects.get()
-		categories = models.Category.objects()
-		prevQuestion = models.Question.get(text=qText)
-		# qet the yesValues for that question
+		app.logger.debug( qText )
+		prevQuestion = models.Question.objects.get(text=qText)
 
+		# save the currScores into prevScores before altering them
+		mayor.prevScores = mayor.currScores
 
-		prevMetrics = {}
+		# qet the yesValues for the previous question
+		prevQYesValues = prevQuestion.yesValues
+
+		# add them to the currScores 
 		counter = 0
-		for c in categories:
-			prevMetrics[c.title] = mayor.currScores[counter]
+		for i in mayor.currScores.keys():
+			pScore = mayor.currScores[i]
+			app.logger.debug( pScore )
+			nScore = prevQYesValues[counter]
+			app.logger.debug( nScore )
+			adjScore = pScore + nScore
+			app.logger.debug( adjScore )
+			mayor.currScores[i] = adjScore
+			app.logger.debug( mayor.currScores[i] )
 			counter = counter + 1
 
-		prevMetrics = sorted(prevMetrics, key=lambda key: prevMetrics[key])
-		questions = models.Question.objects(category=prevMetrics[0])
-		if len(questions) > 1:
-			ranNum = random.randint(0, len(questions))
-			question = questions[ranNum]
-			models.Question.objects.get(text=question.text).delete()
-		else:
-			question = questions[0]
+		# prevMetrics = sorted(prevMetrics, key=lambda key: prevMetrics[key])
+		# questions = models.Question.objects(category=prevMetrics[0])
+		# if len(questions) > 1:
+		# 	ranNum = random.randint(0, len(questions))
+		# 	question = questions[ranNum]
+		# 	models.Question.objects.get(text=question.text).delete()
+		# else:
+		# 	question = questions[0]
 
 		data = {
-				'categories' : newCan.categories,
-				'currScores' : newCan.currScores,
+				'currScores' : mayor.currScores,
 				'question'   : question
 				}
+		render_template("question.html", **data)
 
-	elif response == 2: #No
+	elif response == '2': #No
 		data = {}
 
 	return render_template("question.html", **data)

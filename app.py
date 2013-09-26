@@ -234,6 +234,9 @@ def edit(question):
 	else:
 		editQ.category = request.form.get('category-list')
 		editQ.text = request.form.get('text')
+		editQ.relations = []
+		editQ.yesValues = []
+		editQ.noValues = []
 		for c in categories:
 			editQ.relations.append(c.title)
 			yesValueName = c.title + "-yes"

@@ -98,23 +98,23 @@ def question(response, qText):
 		counter = 0
 		for i in mayor.currScores.keys():
 			pScore = mayor.currScores[i]
-			app.logger.debug( pScore )
 			nScore = prevQYesValues[counter]
-			app.logger.debug( nScore )
 			adjScore = pScore + nScore
-			app.logger.debug( adjScore )
 			mayor.currScores[i] = adjScore
-			app.logger.debug( mayor.currScores[i] )
 			counter = counter + 1
 
-		# prevMetrics = sorted(prevMetrics, key=lambda key: prevMetrics[key])
-		# questions = models.Question.objects(category=prevMetrics[0])
-		# if len(questions) > 1:
-		# 	ranNum = random.randint(0, len(questions))
-		# 	question = questions[ranNum]
-		# 	models.Question.objects.get(text=question.text).delete()
-		# else:
-		# 	question = questions[0]
+		#evaluate the current scores
+		metrics = {}
+		metrics = sorted(mayor.currScores, key=lambda key: mayor.currScores[key])
+
+		#pick a question from the category with the lowest score
+		questions = models.Question.objects(category=metrics[0])
+		if len(questions) > 1:
+			ranNum = random.randint(0, len(questions))
+			question = questions[ranNum]
+			models.Question.objects.get(text=question.text).delete()
+		else:
+			question = questions[0]
 
 		data = {
 				'currScores' : mayor.currScores,

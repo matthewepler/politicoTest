@@ -11,12 +11,12 @@ from mongoengine import *
 
 # import data models
 import models
-import functions
+from otherFunctions import *
 import random
 
-# for json needs
-import json
-from flask import jsonify
+# # for json needs
+# import json
+# from flask import jsonify
 
 import requests
 
@@ -33,31 +33,89 @@ app.logger.debug("Connecting to MongoLabs")
 # --------- Routes -----------------------------------------------------------------
 @app.route("/", methods=['GET'])
 def index():
+	initEverything()
+	app.logger.debug( "database cleared and refilled")
+
+	#create new mayor
+	models.Candidate.objects.delete()
+	newCan = models.Candidate()
+	newCan.name = "Mayor"
+	categories = models.Category.objects()
+	for c in categories:
+		ranNum = random.randint(2,5)
+		newCan.currScores[c.title] = ranNum
+	newCan.save()
+	metrics = {}
+	metrics = sorted(newCan.currScores, key=lambda key: newCan.currScores[key])
+	questions = models.Question.objects(category=metrics[0])
+	ranNum = random.randint(0, len(questions))
+	question = questions[ranNum]
 	
-	return render_template("start.html")
+	data = {
+			'currScores' : newCan.currScores,
+			'question'   : question
+			}
+
+	return render_template("start.html", **data)
 
 
-@app.route("/question/<response>", methods=['GET','POST'])
-def question(response):
-	if response == "0":
-		newCan = models.Candidate()
-		newCan.name = "Mayor"
+@app.route("/question/<response>/<qText>", methods=['GET','POST'])
+def question(response, qText):
+	qText = qText + "?"
+	if response == '0':
+		#reset everything
+		mayor = models.Candidate.objects.get()
 		categories = models.Category.objects()
+
+		#evaluate the current scores
+		metrics = {}
+		metrics = sorted(mayor.currScores, key=lambda key: mayor.currScores[key])
+
+		#pick a question from the category with the lowest score
+		questions = models.Question.objects(category=metrics[0])
+		ranNum = random.randint(0, len(questions))
+		question = questions[ranNum]
+
+		#delete it so we don't pick it again
+		models.Question.objects.get(text=question.text).delete()
+
+		data = {
+				'currScores' : mayor.currScores,
+				'question'   : question
+				}
+
+		return render_template("question.html", **data)
+
+	elif response == 1: #Yes
+		mayor = models.Candidate.objects.get()
+		categories = models.Category.objects()
+		prevQuestion = models.Question.get(text=qText)
+		# qet the yesValues for that question
+
+
+		prevMetrics = {}
+		counter = 0
 		for c in categories:
-			ranNum = random.randint(2,5)
-			newCan.currScores.append(ranNum)
-			newCan.categories.append(c.title)
+			prevMetrics[c.title] = mayor.currScores[counter]
+			counter = counter + 1
+
+		prevMetrics = sorted(prevMetrics, key=lambda key: prevMetrics[key])
+		questions = models.Question.objects(category=prevMetrics[0])
+		if len(questions) > 1:
+			ranNum = random.randint(0, len(questions))
+			question = questions[ranNum]
+			models.Question.objects.get(text=question.text).delete()
+		else:
+			question = questions[0]
+
 		data = {
 				'categories' : newCan.categories,
-				'currScores' : newCan.currScores
+				'currScores' : newCan.currScores,
+				'question'   : question
 				}
-	else:
-		
-		# save the previous values into prevScores
-		# get the form data and put it into currScores
-		# calculate an array of offset values for drawing
-		# package data
-		data = {'response':response}
+
+	elif response == 2: #No
+		data = {}
 
 	return render_template("question.html", **data)
 

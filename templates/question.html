@@ -1,12 +1,39 @@
 {% extends "layout/main.html" %}
 
 {% block body %}
-	{% set counter = 0 %}
-	{% for c in categories %}
-		<p>{{ c }}</p>
-		<p>{{ currScores[counter] }}</p>
-		{% set counter = counter + 1 %}
-	{% endfor %}
+<div id="metrics" class="container">
+	<div class="row">
+		<div class="span12 text-center" style="background:#F8F8F8 ">
+			Your Stats
+			<div class="row" id="graph">
+				<!--GRAPH STUFF HERE-->
+				<div class="row">
+					{% for key, value in currScores.iteritems() %}
+						<div class="span2 text-center">
+							<p>{{ c }}</p>
+							<p>{{ key|e }}</p>
+							<p>{{ value|e }}0%</p>
+						</div>
+					{% endfor %}	
+				</div><!--nested row spans-->
+			</div><!--graph-->
+		</div><!--nested row-->
+	</div><!--top row-->
+</div><!--metrics container-->
+<hr>
+<div class="container">
+	<div class="span10" style="margin-left:50px">
+		<div class="row text-center">
+			<h3>{{ question.text }}</h3>
+		</div><!--text row-->
+	</div><!--span10-->
+</div><!--container-->
+<div class="container">
+	<div class="row" style="margin-left:400px" >
+		<a class="btn btn-large btn-success" href="question/1/{{question.text}}">Yes</a>
+		<a class="btn btn-large btn-danger" href="question/2/{{question.text}}">No</a>
+	</div><!--row-->
+</div><!--container-->
 {% endblock %}
 
 {% block styles %}{% endblock %}

@@ -25,10 +25,10 @@ CategoryForm = model_form(Category)
 
 
 class Candidate(Document):
-	# basic info
+	name = StringField()
 	categories = ListField(StringField())
-	prevScores = ListField(IntField())
-	currScores = ListField(IntField())
+	prevScores = DictField()
+	currScores = DictField()
 	timestamp = DateTimeField(default=datetime.now())
 
 # validation form
